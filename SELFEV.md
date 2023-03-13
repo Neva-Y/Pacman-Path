@@ -5,7 +5,7 @@
 **Semester:** Semester 1, 2023
 
 
-**Student:**
+**Student: Xing Yang Goh - 1001969 - xingyangg**
 
 your full name - your student number - your canvas student login
 
