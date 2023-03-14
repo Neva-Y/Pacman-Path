@@ -197,7 +197,7 @@ def enforcedHillClimbing(problem, heuristic=nullHeuristic):
     queue.push(startNode)
     visited = set()
     while not queue.isEmpty():
-        
+
         if not bestHeuristics.isEmpty():
             queue = util.Queue()
             improvedNode = bestHeuristics.pop()
