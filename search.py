@@ -193,8 +193,31 @@ def enforcedHillClimbing(problem, heuristic=nullHeuristic):
     It will be pass to this function as second argument (heuristic).
     """
     "*** YOUR CODE HERE FOR TASK 1 ***"
-
-    # put the below line at the end of your code or remove it
+    queue = util.Queue()
+    startState = problem.getStartState()
+    startNode = (startState, '', 0, [])
+    currHeuristic = heuristic(startState, problem)
+    queue.push(startNode)
+    visited = set()
+    while not queue.isEmpty():
+        node = queue.pop()
+        state, action, cost, path = node
+        if state not in visited:
+            visited.add(state)
+            if problem.isGoalState(state):
+                path = path + [(state, action)]
+                actions = [action[1] for action in path]
+                del actions[0]
+                return actions
+            for succ in problem.getSuccessors(state):
+                succState, succAction, succCost = succ
+                newNode = (succState, succAction, cost + succCost, path + [(state, action)])
+                if heuristic(succState, problem) < currHeuristic:
+                    queue = util.Queue()
+                    currHeuristic = heuristic(succState, problem)
+                    queue.push(newNode)
+                else:
+                    queue.push(newNode)
     util.raiseNotDefined()
 
 
