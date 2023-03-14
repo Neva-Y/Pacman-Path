@@ -193,11 +193,21 @@ def enforcedHillClimbing(problem, heuristic=nullHeuristic):
     startState = problem.getStartState()
     startNode = (startState, '', 0, [])
     currHeuristic = heuristic(startState, problem)
+    bestHeuristics = util.PriorityQueue()
     queue.push(startNode)
     visited = set()
     while not queue.isEmpty():
-        node = queue.pop()
-        state, action, cost, path = node
+        
+        if not bestHeuristics.isEmpty():
+            queue = util.Queue()
+            improvedNode = bestHeuristics.pop()
+            bestHeuristics = util.PriorityQueue()
+            state, action, cost, path = improvedNode
+            currHeuristic = heuristic(state, problem)
+        else:
+            node = queue.pop()
+            state, action, cost, path = node
+
         if state not in visited:
             visited.add(state)
             if problem.isGoalState(state):
@@ -208,12 +218,9 @@ def enforcedHillClimbing(problem, heuristic=nullHeuristic):
             for succ in problem.getSuccessors(state):
                 succState, succAction, succCost = succ
                 newNode = (succState, succAction, cost + succCost, path + [(state, action)])
+                queue.push(newNode)
                 if heuristic(succState, problem) < currHeuristic:
-                    queue = util.Queue()
-                    currHeuristic = heuristic(succState, problem)
-                    queue.push(newNode)
-                else:
-                    queue.push(newNode)
+                    bestHeuristics.push(newNode, heuristic(succState, problem))
     util.raiseNotDefined()
 
 
