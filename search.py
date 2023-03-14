@@ -74,7 +74,8 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
+
 
 def depthFirstSearch(problem):
     """
@@ -91,43 +92,18 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-
-    util.raiseNotDefined()
-
-def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-
-    util.raiseNotDefined()
-
-def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
-
-def nullHeuristic(state, problem=None):
-    """
-    A heuristic function estimates the cost from the current state to the nearest
-    goal in the provided SearchProblem.  This heuristic is trivial.
-    """
-    return 0
-
-# Please DO NOT change the following code, we will use it later
-def aStarSearch(problem, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    myPQ = util.PriorityQueue()
+    stack = util.Stack()
     startState = problem.getStartState()
-    startNode = (startState, '',0, [])
-    myPQ.push(startNode,heuristic(startState,problem))
+    startNode = (startState, '', 0, [])
+    stack.push(startNode)
     visited = set()
     best_g = dict()
-    while not myPQ.isEmpty():
-        node = myPQ.pop()
+    while not stack.isEmpty():
+        node = stack.pop()
         state, action, cost, path = node
-        if (not state in visited) or cost < best_g.get(state):
+        if (state not in visited) or cost < best_g.get(state):
             visited.add(state)
-            best_g[state]=cost
+            best_g[state] = cost
             if problem.isGoalState(state):
                 path = path + [(state, action)]
                 actions = [action[1] for action in path]
@@ -136,7 +112,76 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             for succ in problem.getSuccessors(state):
                 succState, succAction, succCost = succ
                 newNode = (succState, succAction, cost + succCost, path + [(state, action)])
-                myPQ.push(newNode,heuristic(succState,problem)+cost+succCost)
+                stack.push(newNode)
+    util.raiseNotDefined()
+
+
+def breadthFirstSearch(problem):
+    """Search the shallowest nodes in the search tree first."""
+    "*** YOUR CODE HERE ***"
+    queue = util.Queue()
+    startState = problem.getStartState()
+    startNode = (startState, '', 0, [])
+    queue.push(startNode)
+    visited = set()
+    best_g = dict()
+    while not queue.isEmpty():
+        node = queue.pop()
+        state, action, cost, path = node
+        if (state not in visited) or cost < best_g.get(state):
+            visited.add(state)
+            best_g[state] = cost
+            if problem.isGoalState(state):
+                path = path + [(state, action)]
+                actions = [action[1] for action in path]
+                del actions[0]
+                return actions
+            for succ in problem.getSuccessors(state):
+                succState, succAction, succCost = succ
+                newNode = (succState, succAction, cost + succCost, path + [(state, action)])
+                queue.push(newNode)
+    util.raiseNotDefined()
+
+
+def uniformCostSearch(problem):
+    """Search the node of the least total cost first."""
+    "*** YOUR CODE HERE ***"
+    util.raiseNotDefined()
+
+
+def nullHeuristic(state, problem=None):
+    """
+    A heuristic function estimates the cost from the current state to the nearest
+    goal in the provided SearchProblem.  This heuristic is trivial.
+    """
+    return 0
+
+
+# Please DO NOT change the following code, we will use it later
+def aStarSearch(problem, heuristic=nullHeuristic):
+    """Search the node that has the lowest combined cost and heuristic first."""
+    "*** YOUR CODE HERE ***"
+    myPQ = util.PriorityQueue()
+    startState = problem.getStartState()
+    startNode = (startState, '', 0, [])
+    myPQ.push(startNode, heuristic(startState, problem))
+    visited = set()
+    best_g = dict()
+    while not myPQ.isEmpty():
+        node = myPQ.pop()
+        state, action, cost, path = node
+        if (state not in visited) or cost < best_g.get(state):
+            visited.add(state)
+            best_g[state] = cost
+            if problem.isGoalState(state):
+                path = path + [(state, action)]
+                actions = [action[1] for action in path]
+                del actions[0]
+                return actions
+            for succ in problem.getSuccessors(state):
+                succState, succAction, succCost = succ
+                newNode = (succState, succAction, cost + succCost, path + [(state, action)])
+                myPQ.push(newNode, heuristic(succState, problem) + cost + succCost)
     util.raiseNotDefined()
 
 
@@ -148,15 +193,15 @@ def enforcedHillClimbing(problem, heuristic=nullHeuristic):
     It will be pass to this function as second argument (heuristic).
     """
     "*** YOUR CODE HERE FOR TASK 1 ***"
-    
-    
+
     # put the below line at the end of your code or remove it
     util.raiseNotDefined()
-        
 
-from math import inf as INF   
+
+from math import inf as INF
+
+
 def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuristic=nullHeuristic):
-    
     """
     Bidirectional global search with heuristic function.
     You DO NOT need to implement any heuristic, but you DO have to call them.
@@ -166,8 +211,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     """
     "*** YOUR CODE HERE FOR TASK 2 ***"
     # The problem passed in going to be BidirectionalPositionSearchProblem    
-    
-    
+
     # put the below line at the end of your code or remove it
     util.raiseNotDefined()
 
@@ -178,8 +222,5 @@ dfs = depthFirstSearch
 astar = aStarSearch
 ucs = uniformCostSearch
 
-
 ehc = enforcedHillClimbing
 bae = bidirectionalAStarEnhanced
-
-
