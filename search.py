@@ -97,13 +97,11 @@ def depthFirstSearch(problem):
     startNode = (startState, '', 0, [])
     stack.push(startNode)
     visited = set()
-    best_g = dict()
     while not stack.isEmpty():
         node = stack.pop()
         state, action, cost, path = node
-        if (state not in visited) or cost < best_g.get(state):
+        if state not in visited:
             visited.add(state)
-            best_g[state] = cost
             if problem.isGoalState(state):
                 path = path + [(state, action)]
                 actions = [action[1] for action in path]
@@ -124,13 +122,11 @@ def breadthFirstSearch(problem):
     startNode = (startState, '', 0, [])
     queue.push(startNode)
     visited = set()
-    best_g = dict()
     while not queue.isEmpty():
         node = queue.pop()
         state, action, cost, path = node
-        if (state not in visited) or cost < best_g.get(state):
+        if state not in visited:
             visited.add(state)
-            best_g[state] = cost
             if problem.isGoalState(state):
                 path = path + [(state, action)]
                 actions = [action[1] for action in path]
