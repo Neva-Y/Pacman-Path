@@ -189,40 +189,39 @@ def enforcedHillClimbing(problem, heuristic=nullHeuristic):
     It will be pass to this function as second argument (heuristic).
     """
     "*** YOUR CODE HERE FOR TASK 1 ***"
+    currNode = (problem.getStartState(), '', 0, [])
+    currState, action, cost, path = currNode
+    while not problem.isGoalState(currState):
+        currNode = ehcImprove(currNode, problem, heuristic)
+        currState, action, cost, path = currNode
+
+    if problem.isGoalState(currState):
+        path = path + [(currState, action)]
+        actions = [action[1] for action in path]
+        del actions[0]
+        return actions
+    else:
+        util.raiseNotDefined()
+
+
+def ehcImprove(currNode, problem, heuristic):
     queue = util.Queue()
-    startState = problem.getStartState()
-    startNode = (startState, '', 0, [])
-    currHeuristic = heuristic(startState, problem)
-    bestHeuristics = util.PriorityQueue()
-    queue.push(startNode)
+    queue.push(currNode)
+    currHeuristic = heuristic(currNode[0], problem)
     visited = set()
     while not queue.isEmpty():
-
-        if not bestHeuristics.isEmpty():
-            queue = util.Queue()
-            improvedNode = bestHeuristics.pop()
-            bestHeuristics = util.PriorityQueue()
-            state, action, cost, path = improvedNode
-            currHeuristic = heuristic(state, problem)
-        else:
-            node = queue.pop()
-            state, action, cost, path = node
-
+        node = queue.pop()
+        state, action, cost, path = node
         if state not in visited:
             visited.add(state)
-            if problem.isGoalState(state):
-                path = path + [(state, action)]
-                actions = [action[1] for action in path]
-                del actions[0]
-                return actions
-            for succ in problem.getSuccessors(state):
-                succState, succAction, succCost = succ
-                newNode = (succState, succAction, cost + succCost, path + [(state, action)])
-                queue.push(newNode)
-                if heuristic(succState, problem) < currHeuristic:
-                    bestHeuristics.push(newNode, heuristic(succState, problem))
+            if heuristic(state, problem) < currHeuristic:
+                return node
+            else:
+                for succ in problem.getSuccessors(state):
+                    succState, succAction, succCost = succ
+                    newNode = (succState, succAction, cost + succCost, path + [(state, action)])
+                    queue.push(newNode)
     util.raiseNotDefined()
-
 
 from math import inf as INF
 

@@ -35,6 +35,8 @@ This graph is just an example of how you can include your plots in markdown.
 
 #### Ideas That Almost Worked Well
 
+- Exiting the EHC after expanding all the child nodes, using a priority queue to expand the child with the lowest heuristic
+- Checking if any of the expanded nodes were the goal nodes instead of checking after popping the node from the queue, led to less expanded nodes
 > If you tried ideas that did not make it to the final code, please include them here and explain why they didn't make it.
 
 #### Justification
