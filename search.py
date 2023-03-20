@@ -66,6 +66,19 @@ class SearchProblem:
         util.raiseNotDefined()
 
 
+class SearchDirection:
+    def __init__(self):
+        self.dir = 'B'
+
+    def switchDir(self):
+        if self.dir == 'F':
+            self.dir = 'B'
+        elif self.dir == 'B':
+            self.dir = 'F'
+        else:
+            util.raiseNotDefined()
+
+
 def tinyMazeSearch(problem):
     """
     Returns a sequence of moves that solves tinyMaze.  For any other maze, the
@@ -223,6 +236,7 @@ def ehcImprove(currNode, problem, heuristic):
                     queue.push(newNode)
     util.raiseNotDefined()
 
+
 from math import inf as INF
 
 
@@ -233,13 +247,86 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     The heuristic functions are "manhattanHeuristic" and "backwardsManhattanHeuristic" from searchAgent.py.
     It will be pass to this function as second and third arguments.
     You can call it by using: heuristic(state,problem) or backwardsHeuristic(state,problem)
+    Priority queue variables: state, action, pathCost, path = node
     """
     "*** YOUR CODE HERE FOR TASK 2 ***"
-    # The problem passed in going to be BidirectionalPositionSearchProblem    
+    startState = problem.getStartState()
+    openForward = util.PriorityQueue()
+    closedForward = {}
+    openForward.push((startState, '', 0, []), heuristic(startState, problem))
+
+    openBackward = util.PriorityQueue()
+    closedBackward = {}
+    goalStates = problem.getGoalStates()
+    for goalState in goalStates:
+        openBackward.push((goalState, '', 0, []), backwardsHeuristic(goalState, problem))
+
+    L, U = 0, INF
+    plan = []
+    searchDir = SearchDirection()
+
+    while not openForward.isEmpty() and not openBackward.isEmpty():
+
+        L = (openForward.getMinimumPriority() + openBackward.getMinimumPriority()) / 2
+
+        if searchDir.dir == 'F':
+            state, action, pathCost, path = openForward.pop()
+            closedForward[state] = (pathCost, path)
+            if state in closedBackward.keys():
+                backwardCost, backwardAction = closedBackward[state]
+                if pathCost + backwardCost < U:
+                    U = pathCost + backwardCost
+                    plan = path + [(state, action)] + shiftBackwardsActions(problem, state, backwardAction)
+        else:
+            state, action, pathCost, path = openBackward.pop()
+            closedBackward[state] = (pathCost, path)
+            if state in closedForward.keys():
+                forwardCost, forwardAction = closedForward[state]
+                if pathCost + forwardCost < U:
+                    U = pathCost + forwardCost
+                    plan = forwardAction + shiftBackwardsActions(problem, forwardAction[-1][0], [(state, action)] + path)
+
+        if L >= U:
+            actions = [action[1] for action in plan]
+            del actions[0]
+            return actions
+
+        if searchDir.dir == 'F':
+            for succ in problem.getSuccessors(state):
+                if succ not in closedForward.keys():
+                    succState, succAction, succCost = succ
+                    bValue = 2 * (pathCost + succCost) + heuristic(succState, problem) - backwardsHeuristic(succState,
+                                                                                                            problem)
+                    newNode = (succState, succAction, pathCost + succCost, path + [(state, action)])
+                    openForward.push(newNode, bValue)
+        else:
+            for succ in problem.getBackwardsSuccessors(state):
+                if succ not in closedBackward.keys():
+                    succState, succAction, succCost = succ
+                    bValue = 2 * (pathCost + succCost) + backwardsHeuristic(succState, problem) - heuristic(succState,
+                                                                                                            problem)
+                    newNode = (succState, succAction, pathCost + succCost, [(state, action)] + path)
+                    openBackward.push(newNode, bValue)
+
+        searchDir.switchDir()
+
+    # The problem passed in going to be BidirectionalPositionSearchProblem
 
     # put the below line at the end of your code or remove it
     util.raiseNotDefined()
 
+
+def shiftBackwardsActions(problem, lastState, backwardActions):
+    for i in range(len(backwardActions)-1, -1, -1):
+        j = i - 1
+        backwardActions[i] = (backwardActions[i][0], backwardActions[j][1])
+
+    for succ in problem.getSuccessors(lastState):
+        succState, succAction, succCost = succ
+        if succState == backwardActions[0][0]:
+            backwardActions[0] = (backwardActions[0][0], succAction)
+
+    return backwardActions
 
 # Abbreviations
 bfs = breadthFirstSearch
