@@ -252,14 +252,15 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     "*** YOUR CODE HERE FOR TASK 2 ***"
     startState = problem.getStartState()
     openForward = util.PriorityQueue()
-    closedForward = {}
     openForward.push((startState, '', 0, []), heuristic(startState, problem))
+    closedForward = {startState: (0, '')}
 
     openBackward = util.PriorityQueue()
     closedBackward = {}
     goalStates = problem.getGoalStates()
     for goalState in goalStates:
         openBackward.push((goalState, '', 0, []), backwardsHeuristic(goalState, problem))
+        closedBackward.update({goalState: (0, '')})
 
     L, U = 0, INF
     plan = []
@@ -271,7 +272,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
 
         if searchDir.dir == 'F':
             state, action, pathCost, path = openForward.pop()
-            closedForward[state] = (pathCost, path)
+            closedForward.update({state: (pathCost, path)})
             if state in closedBackward.keys():
                 backwardCost, backwardAction = closedBackward[state]
                 if pathCost + backwardCost < U:
@@ -279,7 +280,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                     plan = path + [(state, action)] + shiftBackwardsActions(problem, state, backwardAction)
         else:
             state, action, pathCost, path = openBackward.pop()
-            closedBackward[state] = (pathCost, path)
+            closedBackward.update({state: (pathCost, path)})
             if state in closedForward.keys():
                 forwardCost, forwardAction = closedForward[state]
                 if pathCost + forwardCost < U:
@@ -293,7 +294,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
 
         if searchDir.dir == 'F':
             for succ in problem.getSuccessors(state):
-                if succ not in closedForward.keys():
+                if succ[0] not in closedForward.keys():
                     succState, succAction, succCost = succ
                     bValue = 2 * (pathCost + succCost) + heuristic(succState, problem) - backwardsHeuristic(succState,
                                                                                                             problem)
@@ -301,7 +302,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                     openForward.push(newNode, bValue)
         else:
             for succ in problem.getBackwardsSuccessors(state):
-                if succ not in closedBackward.keys():
+                if succ[0] not in closedBackward.keys():
                     succState, succAction, succCost = succ
                     bValue = 2 * (pathCost + succCost) + backwardsHeuristic(succState, problem) - heuristic(succState,
                                                                                                             problem)
