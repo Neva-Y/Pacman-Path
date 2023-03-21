@@ -359,7 +359,6 @@ def shiftBackwardsActions(lastState, backwardActions):
             backwardActions[i] = (backwardActions[i][0], backwardActions[j][1])
 
         backwardActions[0] = (backwardActions[0][0], getLinkingAction(lastState, backwardActions[0][0]))
-        print(backwardActions)
         return backwardActions
     else:
         return []
