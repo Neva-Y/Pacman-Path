@@ -67,8 +67,11 @@ class SearchProblem:
 
 
 class SearchDirection:
+    """
+    Used to switch directions for bidirectional search, initialising to a forward search 'F'
+    """
     def __init__(self):
-        self.dir = 'B'
+        self.dir = 'F'
 
     def switchDir(self):
         if self.dir == 'F':
@@ -247,7 +250,6 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     The heuristic functions are "manhattanHeuristic" and "backwardsManhattanHeuristic" from searchAgent.py.
     It will be pass to this function as second and third arguments.
     You can call it by using: heuristic(state,problem) or backwardsHeuristic(state,problem)
-    Priority queue variables: state, action, pathCost, path = node
     """
     "*** YOUR CODE HERE FOR TASK 2 ***"
     startState = problem.getStartState()
