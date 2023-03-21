@@ -20,6 +20,7 @@ Pacman agents (in searchAgents.py).
 from cmath import inf
 from itertools import accumulate
 from queue import PriorityQueue
+from math import inf as INF
 import util
 
 
@@ -70,6 +71,7 @@ class SearchDirection:
     """
     Used to switch directions for bidirectional search, initialising to a forward search 'F'
     """
+
     def __init__(self):
         self.dir = 'F'
 
@@ -240,9 +242,6 @@ def ehcImprove(currNode, problem, heuristic):
     util.raiseNotDefined()
 
 
-from math import inf as INF
-
-
 def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuristic=nullHeuristic):
     """
     Bidirectional global search with heuristic function.
@@ -287,7 +286,8 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                 forwardCost, forwardAction = closedForward[state]
                 if pathCost + forwardCost < U:
                     U = pathCost + forwardCost
-                    plan = forwardAction + shiftBackwardsActions(problem, forwardAction[-1][0], [(state, action)] + path)
+                    plan = forwardAction + shiftBackwardsActions(problem, forwardAction[-1][0],
+                                                                 [(state, action)] + path)
 
         if L >= U:
             actions = [action[1] for action in plan]
@@ -320,16 +320,26 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
 
 
 def shiftBackwardsActions(problem, lastState, backwardActions):
-    for i in range(len(backwardActions)-1, -1, -1):
+    for i in range(len(backwardActions) - 1, -1, -1):
         j = i - 1
         backwardActions[i] = (backwardActions[i][0], backwardActions[j][1])
 
-    for succ in problem.getSuccessors(lastState):
-        succState, succAction, succCost = succ
-        if succState == backwardActions[0][0]:
-            backwardActions[0] = (backwardActions[0][0], succAction)
-
+    backwardActions[0] = (backwardActions[0][0], getLinkingAction(lastState, backwardActions[0][0]))
     return backwardActions
+
+
+def getLinkingAction(fromState, toState):
+    if (toState[0] - fromState[0]) == 1:
+        return 'East'
+    elif (fromState[0] - toState[0]) == 1:
+        return 'West'
+    elif (toState[1] - fromState[1]) == 1:
+        return 'North'
+    elif (fromState[1] - toState[1]) == 1:
+        return 'South'
+    else:
+        util.raiseNotDefined()
+
 
 # Abbreviations
 bfs = breadthFirstSearch
