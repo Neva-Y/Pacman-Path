@@ -278,7 +278,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                 backwardCost, backwardAction = closedBackward[state]
                 if pathCost + backwardCost < U:
                     U = pathCost + backwardCost
-                    plan = path + [(state, action)] + shiftBackwardsActions(problem, state, backwardAction)
+                    plan = path + [(state, action)] + shiftBackwardsActions(state, backwardAction)
         else:
             state, action, pathCost, path = openBackward.pop()
             closedBackward.update({state: (pathCost, path)})
@@ -286,8 +286,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                 forwardCost, forwardAction = closedForward[state]
                 if pathCost + forwardCost < U:
                     U = pathCost + forwardCost
-                    plan = forwardAction + shiftBackwardsActions(problem, forwardAction[-1][0],
-                                                                 [(state, action)] + path)
+                    plan = forwardAction + shiftBackwardsActions(forwardAction[-1][0], [(state, action)] + path)
 
         if L >= U:
             actions = [action[1] for action in plan]
@@ -319,7 +318,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     util.raiseNotDefined()
 
 
-def shiftBackwardsActions(problem, lastState, backwardActions):
+def shiftBackwardsActions(lastState, backwardActions):
     for i in range(len(backwardActions) - 1, -1, -1):
         j = i - 1
         backwardActions[i] = (backwardActions[i][0], backwardActions[j][1])
