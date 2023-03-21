@@ -253,15 +253,25 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     "*** YOUR CODE HERE FOR TASK 2 ***"
     startState = problem.getStartState()
     openForward = util.PriorityQueue()
-    openForward.push((startState, '', 0, []), heuristic(startState, problem))
+    openForward.push((startState, '', 0, []), 0)
     closedForward = {startState: (0, '')}
 
     openBackward = util.PriorityQueue()
     closedBackward = {}
-    goalStates = problem.getGoalStates()
-    for goalState in goalStates:
-        openBackward.push((goalState, '', 0, []), backwardsHeuristic(goalState, problem))
-        closedBackward.update({goalState: (0, '')})
+
+    unvisitedGoalStates = set()
+    for goal in problem.getGoalStates():
+        unvisitedGoalStates.add(goal)
+
+    goalStates = util.PriorityQueue()
+    for goalState in unvisitedGoalStates:
+        problem.goal = goalState
+        goalStates.push((goalState, '', 0, []), heuristic(startState, problem))
+
+    currentGoalNode = goalStates.pop()
+    problem.goal = currentGoalNode[0]
+    openBackward.push(currentGoalNode, 0)
+    closedBackward.update({currentGoalNode[0]: (0, '')})
 
     L, U = 0, INF
     plan = []
@@ -289,9 +299,33 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                     plan = forwardAction + shiftBackwardsActions(forwardAction[-1][0], [(state, action)] + path)
 
         if L >= U:
-            actions = [action[1] for action in plan]
-            del actions[0]
-            return actions
+            # There are remaining goal nodes to reach
+            if not goalStates.isEmpty():
+                unvisitedGoalStates.remove(currentGoalNode[0])
+                goalStates = util.PriorityQueue()
+                for goalState in unvisitedGoalStates:
+                    problem.goal = goalState
+                    goalStates.push((goalState, '', 0, []), heuristic(currentGoalNode[0], problem))
+
+                openForward = util.PriorityQueue()
+                openForward.push((currentGoalNode[0], plan[-1][1], U, plan[0:-1]), 0)
+                closedForward = {}
+                closedForward.update({currentGoalNode[0]: (U, plan[0:-1])})
+
+                openBackward = util.PriorityQueue()
+                closedBackward = {}
+                problem.current = currentGoalNode[0]
+                currentGoalNode = goalStates.pop()
+                openBackward.push(currentGoalNode, 0)
+                closedBackward.update({currentGoalNode[0]: (0, '')})
+                problem.goal = currentGoalNode[0]
+
+                L, U = 0, INF
+                continue
+            else:
+                actions = [action[1] for action in plan]
+                del actions[0]
+                return actions
 
         if searchDir.dir == 'F':
             for succ in problem.getSuccessors(state):
@@ -319,12 +353,16 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
 
 
 def shiftBackwardsActions(lastState, backwardActions):
-    for i in range(len(backwardActions) - 1, -1, -1):
-        j = i - 1
-        backwardActions[i] = (backwardActions[i][0], backwardActions[j][1])
+    if len(backwardActions) > 0:
+        for i in range(len(backwardActions) - 1, -1, -1):
+            j = i - 1
+            backwardActions[i] = (backwardActions[i][0], backwardActions[j][1])
 
-    backwardActions[0] = (backwardActions[0][0], getLinkingAction(lastState, backwardActions[0][0]))
-    return backwardActions
+        backwardActions[0] = (backwardActions[0][0], getLinkingAction(lastState, backwardActions[0][0]))
+        print(backwardActions)
+        return backwardActions
+    else:
+        return []
 
 
 def getLinkingAction(fromState, toState):
