@@ -253,25 +253,17 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     "*** YOUR CODE HERE FOR TASK 2 ***"
     startState = problem.getStartState()
     openForward = util.PriorityQueue()
-    openForward.push((startState, '', 0, []), 0)
-    closedForward = {startState: (0, '')}
+    openForward.push((startState, '', 0, []), heuristic(startState, problem))
+    closedForward = {startState: 0}
+    pathForward = {}
 
     openBackward = util.PriorityQueue()
     closedBackward = {}
-
-    unvisitedGoalStates = set()
-    for goal in problem.getGoalStates():
-        unvisitedGoalStates.add(goal)
-
-    goalStates = util.PriorityQueue()
-    for goalState in unvisitedGoalStates:
-        problem.goal = goalState
-        goalStates.push((goalState, '', 0, []), heuristic(startState, problem))
-
-    currentGoalNode = goalStates.pop()
-    problem.goal = currentGoalNode[0]
-    openBackward.push(currentGoalNode, 0)
-    closedBackward.update({currentGoalNode[0]: (0, '')})
+    pathBackward = {}
+    goalStates = problem.getGoalStates()
+    for goalState in goalStates:
+        openBackward.push((goalState, '', 0, []), backwardsHeuristic(goalState, problem))
+        closedBackward.update({goalState: 0})
 
     L, U = 0, INF
     plan = []
@@ -283,99 +275,52 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
 
         if searchDir.dir == 'F':
             state, action, pathCost, path = openForward.pop()
-            closedForward.update({state: (pathCost, path)})
+            closedForward.update({state: pathCost})
             if state in closedBackward.keys():
-                backwardCost, backwardAction = closedBackward[state]
+                backwardCost = closedBackward[state]
                 if pathCost + backwardCost < U:
                     U = pathCost + backwardCost
-                    plan = path + [(state, action)] + shiftBackwardsActions(state, backwardAction)
+                    forwardActions = [action[1] for action in (path + [(state, action)])]
+                    backwardActions = [action[1] for action in reversed(pathBackward[state])]
+                    del forwardActions[0]
+                    del backwardActions[-1]
+                    plan = forwardActions + backwardActions
         else:
             state, action, pathCost, path = openBackward.pop()
-            closedBackward.update({state: (pathCost, path)})
+            closedBackward.update({state: pathCost})
             if state in closedForward.keys():
-                forwardCost, forwardAction = closedForward[state]
+                forwardCost = closedForward[state]
                 if pathCost + forwardCost < U:
                     U = pathCost + forwardCost
-                    plan = forwardAction + shiftBackwardsActions(forwardAction[-1][0], [(state, action)] + path)
+                    backwardActions = [action[1] for action in reversed(path + [(state, action)])]
+                    forwardActions = [action[1] for action in pathForward[state]]
+                    del forwardActions[0]
+                    del backwardActions[-1]
+                    plan = forwardActions + backwardActions
 
         if L >= U:
-            # There are remaining goal nodes to reach
-            if not goalStates.isEmpty():
-                unvisitedGoalStates.remove(currentGoalNode[0])
-                goalStates = util.PriorityQueue()
-                for goalState in unvisitedGoalStates:
-                    problem.goal = goalState
-                    goalStates.push((goalState, '', 0, []), heuristic(currentGoalNode[0], problem))
-
-                openForward = util.PriorityQueue()
-                openForward.push((currentGoalNode[0], plan[-1][1], U, plan[0:-1]), 0)
-                closedForward = {}
-                closedForward.update({currentGoalNode[0]: (U, plan[0:-1])})
-
-                openBackward = util.PriorityQueue()
-                closedBackward = {}
-                problem.current = currentGoalNode[0]
-                currentGoalNode = goalStates.pop()
-                openBackward.push(currentGoalNode, 0)
-                closedBackward.update({currentGoalNode[0]: (0, '')})
-                problem.goal = currentGoalNode[0]
-
-                L, U = 0, INF
-                continue
-            else:
-                actions = [action[1] for action in plan]
-                del actions[0]
-                return actions
+            return plan
 
         if searchDir.dir == 'F':
             for succ in problem.getSuccessors(state):
                 if succ[0] not in closedForward.keys():
                     succState, succAction, succCost = succ
-                    bValue = 2 * (pathCost + succCost) + heuristic(succState, problem) - backwardsHeuristic(succState,
-                                                                                                            problem)
+                    bValue = 2 * (pathCost + succCost) + heuristic(succState, problem) - backwardsHeuristic(succState, problem)
                     newNode = (succState, succAction, pathCost + succCost, path + [(state, action)])
                     openForward.push(newNode, bValue)
+                    pathForward.update({succState: newNode[3] + [(succState, succAction)]})
         else:
             for succ in problem.getBackwardsSuccessors(state):
                 if succ[0] not in closedBackward.keys():
                     succState, succAction, succCost = succ
-                    bValue = 2 * (pathCost + succCost) + backwardsHeuristic(succState, problem) - heuristic(succState,
-                                                                                                            problem)
-                    newNode = (succState, succAction, pathCost + succCost, [(state, action)] + path)
+                    bValue = 2 * (pathCost + succCost) + backwardsHeuristic(succState, problem) - heuristic(succState, problem)
+                    newNode = (succState, succAction, pathCost + succCost, path + [(state, action)])
                     openBackward.push(newNode, bValue)
+                    pathBackward.update({succState: newNode[3] + [(succState, succAction)]})
 
         searchDir.switchDir()
 
-    # The problem passed in going to be BidirectionalPositionSearchProblem
-
-    # put the below line at the end of your code or remove it
     util.raiseNotDefined()
-
-
-def shiftBackwardsActions(lastState, backwardActions):
-    if len(backwardActions) > 0:
-        for i in range(len(backwardActions) - 1, -1, -1):
-            j = i - 1
-            backwardActions[i] = (backwardActions[i][0], backwardActions[j][1])
-
-        backwardActions[0] = (backwardActions[0][0], getLinkingAction(lastState, backwardActions[0][0]))
-        return backwardActions
-    else:
-        return []
-
-
-def getLinkingAction(fromState, toState):
-    if (toState[0] - fromState[0]) == 1:
-        return 'East'
-    elif (fromState[0] - toState[0]) == 1:
-        return 'West'
-    elif (toState[1] - fromState[1]) == 1:
-        return 'North'
-    elif (fromState[1] - toState[1]) == 1:
-        return 'South'
-    else:
-        util.raiseNotDefined()
-
 
 # Abbreviations
 bfs = breadthFirstSearch

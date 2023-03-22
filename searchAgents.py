@@ -820,45 +820,41 @@ class BidirectionalFoodSearchProblem:
         self.init_pos = startingGameState.getPacmanPosition()
         self.foodGrid = startingGameState.getFood()
         self.walls = startingGameState.getWalls()
-        # self.emptyFoodGrid = Grid(self.foodGrid.width,self.foodGrid.height)
+        self.emptyFoodGrid = Grid(self.foodGrid.width, self.foodGrid.height)
 
         """You code here for Task 3:"""
-        # Define your initial state
-        self.start = self.init_pos
-        self.goal = None
-        self.current = None
+        # Define initial state as the initial position with grid of all the food
+        self.start = (self.init_pos, self.foodGrid)
+        # Define goal state as coordinates and grid of the single food location
+        self.goal_states = []
+        foodStates = self.foodGrid.asList()
+        self.emptyGrid = self.foodGrid.copy()
+        for state in foodStates:
+            self.emptyGrid[state[0]][state[1]] = False
+        for state in foodStates:
+            foodLocationGrid = self.emptyGrid.copy()
+            foodLocationGrid[state[0]][state[1]] = True
+            self.goal_states.append((state, foodLocationGrid))
+
         # And if you have anything else want to initialize:
         self.costFn = costFn
-        # Initialise Goal States
-        self.goalStates = []
-        for x in range(self.foodGrid.width):
-            for y in range(self.foodGrid.height):
-                if self.foodGrid[x][y]:
-                    self.goalStates.append((x, y))
 
     def getStartState(self):
         """You code here for Task 3:"""
         # You MUST implement this function to return the initial state
-        self.current = self.start
         return self.start
 
     def getGoalStates(self):
-        goal_states = []
         """You code here for Task 3:"""
-        # You must generate all goal states
-        return self.goalStates
+        return self.goal_states
 
     def isGoalState(self, state):
         goal_achieved = False
         """You code here for Task 3:"""
-        if state in self.goalStates:
-            self.goalStates.remove(state)
-
-        if len(self.goalStates) == 0:
+        if state[1] in self.goal_states:
             goal_achieved = True
-
         # You MUST implement this function to return True or False
-        # to indicate whether the give state is one of the goal state or not        
+        # to indicate whether the give state is one of the goal state or not
 
         return goal_achieved
 
@@ -870,13 +866,16 @@ class BidirectionalFoodSearchProblem:
 
         """You code here for Task 3:"""
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-            x, y = state
+            x, y = state[0]
             dx, dy = Actions.directionToVector(action)
             next_x, next_y = int(x + dx), int(y + dy)
             if not self.walls[next_x][next_y]:
+                nextGrid = state[1].copy()
+                # Update the complete food grid to flip other traversed food on the grid to False
+                nextGrid[next_x][next_y] = False
                 nextState = (next_x, next_y)
                 cost = self.costFn(nextState)
-                successors.append((nextState, action, cost))
+                successors.append(((nextState, nextGrid), action, cost))
 
         # There are four actions might be available:
         # for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
@@ -893,18 +892,18 @@ class BidirectionalFoodSearchProblem:
 
         """You code here for Task 3:"""
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-            x, y = state
+            x, y = state[0]
             dx, dy = Actions.directionToVector(action)
             next_x, next_y = int(x + dx), int(y + dy)
             if not self.walls[next_x][next_y]:
+                nextGrid = state[1].copy()
+                # Update the single food state grid to flip other food on the grid to True
+                if self.foodGrid[next_x][next_y]:
+                    nextGrid[next_x][next_y] = True
                 nextState = (next_x, next_y)
                 cost = self.costFn(nextState)
                 rev_action = Actions.reverseDirection(action)
-                successors.append((nextState, rev_action, cost))
-
-        # There are four actions might be available:
-        # for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
-        #     dx, dy = Actions.directionToVector(direction)
+                successors.append(((nextState, nextGrid), rev_action, cost))
 
         return successors
 
@@ -914,26 +913,18 @@ class BidirectionalFoodSearchProblem:
 
         # this function will return the cost only for display purpose when you run your own test.
         "*** YOUR CODE HERE for Task 3 (optional) ***"
-        if actions == None: return 999999
-        x, y = self.getStartState()
         cost = 0
-        for action in actions:
-            # Check figure out the next state and see whether its' legal
-            dx, dy = Actions.directionToVector(action)
-            x, y = int(x + dx), int(y + dy)
-            if self.walls[x][y]: return 999999
-            cost += self.costFn((x, y))
-        return cost
 
         # for action in actions:
         #     dx, dy = Actions.directionToVector(action)
+        return cost
 
 
 def bidirectionalFoodProblemHeuristic(state, problem):
     """YOUR CODE HERE for Task 3"""
-    return util.manhattanDistance(state, problem.goal)
+    return 0
 
 
 def bidirectionalFoodProblemBackwardsHeuristic(state, problem):
     """YOUR CODE HERE for Task 3"""
-    return util.manhattanDistance(state, problem.current)
+    return 0
