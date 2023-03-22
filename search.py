@@ -251,12 +251,14 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     You can call it by using: heuristic(state,problem) or backwardsHeuristic(state,problem)
     """
     "*** YOUR CODE HERE FOR TASK 2 ***"
+    # Start state initialisation
     startState = problem.getStartState()
     openForward = util.PriorityQueue()
     openForward.push((startState, '', 0, []), heuristic(startState, problem))
     closedForward = {startState: 0}
     pathForward = {}
 
+    # Goal states initialisation
     openBackward = util.PriorityQueue()
     closedBackward = {}
     pathBackward = {}
@@ -265,8 +267,15 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
         openBackward.push((goalState, '', 0, []), backwardsHeuristic(goalState, problem))
         closedBackward.update({goalState: 0})
 
+    # Sets for the forward and backward search states to prevent repeat node expansions
+    openForwardSet = set()
+    openBackwardSet = set()
+
+    # Lower, upper bound and plan initialisation
     L, U = 0, INF
     plan = []
+
+    # Initialise search direction as forward
     searchDir = SearchDirection()
 
     while not openForward.isEmpty() and not openBackward.isEmpty():
@@ -303,25 +312,25 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
 
         if searchDir.dir == 'F':
             for succ in problem.getSuccessors(state):
-                if succ[0] not in closedForward.keys():
+                if succ[0] not in closedForward.keys() and succ[0] not in openForwardSet:
                     succState, succAction, succCost = succ
                     bValue = 2 * (pathCost + succCost) + heuristic(succState, problem) - backwardsHeuristic(succState, problem)
                     newNode = (succState, succAction, pathCost + succCost, path + [(state, action)])
                     openForward.push(newNode, bValue)
+                    openForwardSet.add(succState)
                     pathForward.update({succState: newNode[3] + [(succState, succAction)]})
         else:
             for succ in problem.getBackwardsSuccessors(state):
-                if succ[0] not in closedBackward.keys():
+                if succ[0] not in closedBackward.keys() and succ[0] not in openBackwardSet:
                     succState, succAction, succCost = succ
                     bValue = 2 * (pathCost + succCost) + backwardsHeuristic(succState, problem) - heuristic(succState, problem)
                     newNode = (succState, succAction, pathCost + succCost, path + [(state, action)])
                     openBackward.push(newNode, bValue)
+                    openBackwardSet.add(succState)
                     pathBackward.update({succState: newNode[3] + [(succState, succAction)]})
 
         searchDir.switchDir()
-
-    util.raiseNotDefined()
-
+    return plan
 
 # Abbreviations
 bfs = breadthFirstSearch
