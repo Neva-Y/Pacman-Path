@@ -824,7 +824,10 @@ class BidirectionalFoodSearchProblem:
 
         """You code here for Task 3:"""
         # Define initial state as the initial position with grid of all the food
-        self.start = (self.init_pos, self.foodGrid)
+        startState = self.foodGrid.copy()
+        startState[self.init_pos[0]][self.init_pos[1]] = False
+        self.start = (self.init_pos, startState)
+
         # Define goal state as coordinates and grid of the single food location
         self.goal_states = []
         foodStates = self.foodGrid.asList()
@@ -832,12 +835,15 @@ class BidirectionalFoodSearchProblem:
         for state in foodStates:
             self.emptyGrid[state[0]][state[1]] = False
         for state in foodStates:
-            foodLocationGrid = self.emptyGrid.copy()
-            foodLocationGrid[state[0]][state[1]] = True
-            self.goal_states.append((state, foodLocationGrid))
+            if state != self.init_pos:
+                foodLocationGrid = self.emptyGrid.copy()
+                foodLocationGrid[state[0]][state[1]] = True
+                self.goal_states.append((state, foodLocationGrid))
 
         # And if you have anything else want to initialize:
         self.costFn = costFn
+        self.visitedForward = set()
+        self.visitedBackward = set()
 
     def getStartState(self):
         """You code here for Task 3:"""
@@ -862,6 +868,7 @@ class BidirectionalFoodSearchProblem:
         # You MUST implement this function to return a list of successors
         # A successor is in the format of (next_state, action, cost)
         successors = []
+        self.visitedForward.update(state[0])
         self._expanded += 1  # DO NOT CHANGE
 
         """You code here for Task 3:"""
@@ -875,7 +882,10 @@ class BidirectionalFoodSearchProblem:
                 nextGrid[next_x][next_y] = False
                 nextState = (next_x, next_y)
                 cost = self.costFn(nextState)
-                successors.append(((nextState, nextGrid), action, cost))
+                if nextState in self.visitedForward:
+                    successors.append(((nextState, nextGrid), action, cost))
+                else:
+                    successors.insert(0, ((nextState, nextGrid), action, cost))
 
         # There are four actions might be available:
         # for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
@@ -888,8 +898,8 @@ class BidirectionalFoodSearchProblem:
         # A successor is in the format of (next_state, action, cost)
         # DO reverse your action before you return it
         successors = []
+        self.visitedBackward.update(state[0])
         self._expanded += 1  # DO NOT CHANGE
-
         """You code here for Task 3:"""
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             x, y = state[0]
@@ -903,7 +913,10 @@ class BidirectionalFoodSearchProblem:
                 nextState = (next_x, next_y)
                 cost = self.costFn(nextState)
                 rev_action = Actions.reverseDirection(action)
-                successors.append(((nextState, nextGrid), rev_action, cost))
+                if nextState in self.visitedBackward:
+                    successors.append(((nextState, nextGrid), rev_action, cost))
+                else:
+                    successors.insert(0, ((nextState, nextGrid), rev_action, cost))
 
         return successors
 

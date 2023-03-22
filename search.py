@@ -251,25 +251,30 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     You can call it by using: heuristic(state,problem) or backwardsHeuristic(state,problem)
     """
     "*** YOUR CODE HERE FOR TASK 2 ***"
+    # Sets for the forward and backward search states to prevent repeat node expansions
+    openForwardSet = set()
+    openBackwardSet = set()
+
     # Start state initialisation
     startState = problem.getStartState()
     openForward = util.PriorityQueue()
     openForward.push((startState, '', 0, []), heuristic(startState, problem))
-    closedForward = {startState: 0}
+    openForwardSet.add(startState)
+    costForward = {}
+    closedForward = set()
+    closedForward.add(startState)
     pathForward = {}
 
     # Goal states initialisation
     openBackward = util.PriorityQueue()
-    closedBackward = {}
+    closedBackward = set()
+    costBackward = {}
     pathBackward = {}
     goalStates = problem.getGoalStates()
     for goalState in goalStates:
         openBackward.push((goalState, '', 0, []), backwardsHeuristic(goalState, problem))
-        closedBackward.update({goalState: 0})
-
-    # Sets for the forward and backward search states to prevent repeat node expansions
-    openForwardSet = set()
-    openBackwardSet = set()
+        closedBackward.add(goalState)
+        openBackwardSet.add(goalState)
 
     # Lower, upper bound and plan initialisation
     L, U = 0, INF
@@ -284,50 +289,51 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
 
         if searchDir.dir == 'F':
             state, action, pathCost, path = openForward.pop()
-            closedForward.update({state: pathCost})
-            if state in closedBackward.keys():
-                backwardCost = closedBackward[state]
-                if pathCost + backwardCost < U:
-                    U = pathCost + backwardCost
-                    forwardActions = [action[1] for action in (path + [(state, action)])]
-                    backwardActions = [action[1] for action in reversed(pathBackward[state])]
-                    del forwardActions[0]
-                    del backwardActions[-1]
-                    plan = forwardActions + backwardActions
+            openForwardSet.remove(state)
+            closedForward.add(state)
+            if state in openBackwardSet and pathCost + costBackward[state] < U:
+                U = pathCost + costBackward[state]
+                forwardActions = [action[1] for action in (path + [(state, action)])]
+                backwardActions = [action[1] for action in reversed(pathBackward[state])]
+                del forwardActions[0]
+                del backwardActions[-1]
+                plan = forwardActions + backwardActions
         else:
             state, action, pathCost, path = openBackward.pop()
-            closedBackward.update({state: pathCost})
-            if state in closedForward.keys():
-                forwardCost = closedForward[state]
-                if pathCost + forwardCost < U:
-                    U = pathCost + forwardCost
-                    backwardActions = [action[1] for action in reversed(path + [(state, action)])]
-                    forwardActions = [action[1] for action in pathForward[state]]
-                    del forwardActions[0]
-                    del backwardActions[-1]
-                    plan = forwardActions + backwardActions
+            openBackwardSet.remove(state)
+            closedBackward.add(state)
+            if state in openForwardSet and pathCost + costForward[state] < U:
+                U = pathCost + costForward[state]
+                backwardActions = [action[1] for action in reversed(path + [(state, action)])]
+                forwardActions = [action[1] for action in pathForward[state]]
+                del forwardActions[0]
+                del backwardActions[-1]
+                plan = forwardActions + backwardActions
 
         if L >= U:
             return plan
 
         if searchDir.dir == 'F':
             for succ in problem.getSuccessors(state):
-                if succ[0] not in closedForward.keys() and succ[0] not in openForwardSet:
+                if succ[0] not in closedForward and succ[0] not in openForwardSet:
                     succState, succAction, succCost = succ
                     bValue = 2 * (pathCost + succCost) + heuristic(succState, problem) - backwardsHeuristic(succState, problem)
                     newNode = (succState, succAction, pathCost + succCost, path + [(state, action)])
                     openForward.push(newNode, bValue)
                     openForwardSet.add(succState)
                     pathForward.update({succState: newNode[3] + [(succState, succAction)]})
+                    costForward.update({succState: succCost})
+
         else:
             for succ in problem.getBackwardsSuccessors(state):
-                if succ[0] not in closedBackward.keys() and succ[0] not in openBackwardSet:
+                if succ[0] not in closedBackward and succ[0] not in openBackwardSet:
                     succState, succAction, succCost = succ
                     bValue = 2 * (pathCost + succCost) + backwardsHeuristic(succState, problem) - heuristic(succState, problem)
                     newNode = (succState, succAction, pathCost + succCost, path + [(state, action)])
                     openBackward.push(newNode, bValue)
                     openBackwardSet.add(succState)
                     pathBackward.update({succState: newNode[3] + [(succState, succAction)]})
+                    costBackward.update({succState: succCost})
 
         searchDir.switchDir()
     return plan
