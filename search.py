@@ -322,6 +322,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
 
     util.raiseNotDefined()
 
+
 # Abbreviations
 bfs = breadthFirstSearch
 dfs = depthFirstSearch

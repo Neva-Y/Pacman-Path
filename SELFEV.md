@@ -22,7 +22,7 @@ your full name - your student number - your canvas student login
 
 ## Part 1
 #### Self Evaluated Marks (3 marks):
-0
+3
 > Please replace the above 0 with the mark you think you earned for this part. Consider how many (yours/ours) tests pass, the quality of your code, what you learnt, and [mainly for the final task] the quality of the tests that you wrote
 #### Code Performance
 This graph is just an example of how you can include your plots in markdown.
@@ -36,7 +36,7 @@ This graph is just an example of how you can include your plots in markdown.
 #### Ideas That Almost Worked Well
 
 - Exiting the EHC after expanding all the child nodes, using a priority queue to expand the child with the lowest heuristic
-- Checking if any of the expanded nodes were the goal nodes instead of checking after popping the node from the queue, led to less expanded nodes
+- Checking if any of the expanded nodes were the goal nodes instead of checking after popping the node from the queue, led to less expanded nodes compared to the expected solution
 > If you tried ideas that did not make it to the final code, please include them here and explain why they didn't make it.
 
 #### Justification
