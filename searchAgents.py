@@ -842,8 +842,6 @@ class BidirectionalFoodSearchProblem:
 
         # And if you have anything else want to initialize:
         self.costFn = costFn
-        self.visitedForward = set()
-        self.visitedBackward = set()
 
     def getStartState(self):
         """You code here for Task 3:"""
@@ -868,7 +866,6 @@ class BidirectionalFoodSearchProblem:
         # You MUST implement this function to return a list of successors
         # A successor is in the format of (next_state, action, cost)
         successors = []
-        self.visitedForward.update(state[0])
         self._expanded += 1  # DO NOT CHANGE
 
         """You code here for Task 3:"""
@@ -879,13 +876,10 @@ class BidirectionalFoodSearchProblem:
             if not self.walls[next_x][next_y]:
                 nextGrid = state[1].copy()
                 # Update the complete food grid to flip other traversed food on the grid to False
-                nextGrid[next_x][next_y] = False
+                nextGrid[x][y] = False
                 nextState = (next_x, next_y)
                 cost = self.costFn(nextState)
-                if nextState in self.visitedForward:
-                    successors.append(((nextState, nextGrid), action, cost))
-                else:
-                    successors.insert(0, ((nextState, nextGrid), action, cost))
+                successors.append(((nextState, nextGrid), action, cost))
 
         # There are four actions might be available:
         # for direction in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
@@ -898,7 +892,6 @@ class BidirectionalFoodSearchProblem:
         # A successor is in the format of (next_state, action, cost)
         # DO reverse your action before you return it
         successors = []
-        self.visitedBackward.update(state[0])
         self._expanded += 1  # DO NOT CHANGE
         """You code here for Task 3:"""
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
@@ -913,10 +906,7 @@ class BidirectionalFoodSearchProblem:
                 nextState = (next_x, next_y)
                 cost = self.costFn(nextState)
                 rev_action = Actions.reverseDirection(action)
-                if nextState in self.visitedBackward:
-                    successors.append(((nextState, nextGrid), rev_action, cost))
-                else:
-                    successors.insert(0, ((nextState, nextGrid), rev_action, cost))
+                successors.append(((nextState, nextGrid), rev_action, cost))
 
         return successors
 
