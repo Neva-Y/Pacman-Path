@@ -251,15 +251,15 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     You can call it by using: heuristic(state,problem) or backwardsHeuristic(state,problem)
     """
     "*** YOUR CODE HERE FOR TASK 2 ***"
-    # Sets for the forward and backward search states to prevent repeat node expansions
-    openForwardSet = set()
-    openBackwardSet = set()
+    # Open set states for the forward and backward search
+    openForwardSet = []
+    openBackwardSet = []
 
     # Start state initialisation
     startState = problem.getStartState()
     openForward = util.PriorityQueue()
     openForward.push((startState, '', 0, []), heuristic(startState, problem))
-    openForwardSet.add(startState)
+    openForwardSet.append(startState)
     costForward = {}
     closedForwardSet = set()
     pathForward = {}
@@ -272,7 +272,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     goalStates = problem.getGoalStates()
     for goalState in goalStates:
         openBackward.push((goalState, '', 0, []), backwardsHeuristic(goalState, problem))
-        openBackwardSet.add(goalState)
+        openBackwardSet.append(goalState)
 
     finalStep = []
 
@@ -289,8 +289,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
 
         if searchDir.dir == 'F':
             state, action, pathCost, path = openForward.pop()
-            if state in openForwardSet:
-                openForwardSet.remove(state)
+            openForwardSet.remove(state)
             closedForwardSet.add(state)
             if state in openBackwardSet and pathCost + costBackward[state][0] < U:
                 U = pathCost + costBackward[state][0]
@@ -301,8 +300,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                 plan = forwardActions + [costBackward[state][1]] + backwardActions
         else:
             state, action, pathCost, path = openBackward.pop()
-            if state in openBackwardSet:
-                openBackwardSet.remove(state)
+            openBackwardSet.remove(state)
             closedBackwardSet.add(state)
             if state in openForwardSet and pathCost + costForward[state][0] < U:
                 U = pathCost + costForward[state][0]
@@ -324,7 +322,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                     bValue = 2 * (pathCost + succCost) + heuristic(succState, problem) - backwardsHeuristic(succState, problem)
                     newNode = (succState, succAction, pathCost + succCost, path + [(state, action)])
                     openForward.push(newNode, bValue)
-                    openForwardSet.add(succState)
+                    openForwardSet.append(succState)
                     if succState in costForward.keys() and costForward[succState][0] > (succCost + pathCost):
                         pathForward[succState] = newNode[3]
                         costForward[succState] = [succCost + pathCost, succAction]
@@ -339,7 +337,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                     bValue = 2 * (pathCost + succCost) + backwardsHeuristic(succState, problem) - heuristic(succState, problem)
                     newNode = (succState, succAction, pathCost + succCost, path + [(state, action)])
                     openBackward.push(newNode, bValue)
-                    openBackwardSet.add(succState)
+                    openBackwardSet.append(succState)
                     if succState in costBackward.keys() and costBackward[succState][0] > (succCost + pathCost):
                         pathBackward[succState] = newNode[3]
                         costBackward[succState] = [succCost + pathCost, succAction]
