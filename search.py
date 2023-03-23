@@ -274,6 +274,8 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
         openBackward.push((goalState, '', 0, []), backwardsHeuristic(goalState, problem))
         openBackwardSet.add(goalState)
 
+    finalStep = []
+
     # Lower, upper bound and plan initialisation
     L, U = 0, INF
     plan = []
@@ -290,28 +292,27 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
             if state in openForwardSet:
                 openForwardSet.remove(state)
             closedForwardSet.add(state)
-            if state in openBackwardSet and pathCost + costBackward[state] < U:
-                U = pathCost + costBackward[state]
+            if state in openBackwardSet and pathCost + costBackward[state][0] < U:
+                U = pathCost + costBackward[state][0]
                 forwardActions = [action[1] for action in (path + [(state, action)])]
                 backwardActions = [action[1] for action in reversed(pathBackward[state])]
                 del forwardActions[0]
                 del backwardActions[-1]
-                plan = forwardActions + backwardActions
+                plan = forwardActions + [costBackward[state][1]] + backwardActions
         else:
             state, action, pathCost, path = openBackward.pop()
             if state in openBackwardSet:
                 openBackwardSet.remove(state)
             closedBackwardSet.add(state)
-            if state in openForwardSet and pathCost + costForward[state] < U:
-                U = pathCost + costForward[state]
+            if state in openForwardSet and pathCost + costForward[state][0] < U:
+                U = pathCost + costForward[state][0]
                 backwardActions = [action[1] for action in reversed(path + [(state, action)])]
                 forwardActions = [action[1] for action in pathForward[state]]
                 del forwardActions[0]
                 del backwardActions[-1]
-                plan = forwardActions + backwardActions
+                plan = forwardActions + [costForward[state][1]] + backwardActions
 
         if L >= U:
-            print(len(plan))
             return plan
 
         if searchDir.dir == 'F':
@@ -322,12 +323,12 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                     newNode = (succState, succAction, pathCost + succCost, path + [(state, action)])
                     openForward.push(newNode, bValue)
                     openForwardSet.add(succState)
-                    if succState in costForward.keys() and costForward[succState] > (succCost + pathCost):
-                        pathForward[succState] = newNode[3] + [(succState, succAction)]
-                        costForward[succState] = succCost + pathCost
+                    if succState in costForward.keys() and costForward[succState][0] > (succCost + pathCost):
+                        pathForward[succState] = newNode[3]
+                        costForward[succState] = [succCost + pathCost, succAction]
                     elif succState not in costForward.keys():
-                        pathForward[succState] = newNode[3] + [(succState, succAction)]
-                        costForward[succState] = succCost + pathCost
+                        pathForward[succState] = newNode[3]
+                        costForward[succState] = [succCost + pathCost, succAction]
 
         else:
             for succ in problem.getBackwardsSuccessors(state):
@@ -337,12 +338,12 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                     newNode = (succState, succAction, pathCost + succCost, path + [(state, action)])
                     openBackward.push(newNode, bValue)
                     openBackwardSet.add(succState)
-                    if succState in costBackward.keys() and costBackward[succState] > (succCost + pathCost):
-                        pathBackward[succState] = newNode[3] + [(succState, succAction)]
-                        costBackward[succState] = succCost + pathCost
+                    if succState in costBackward.keys() and costBackward[succState][0] > (succCost + pathCost):
+                        pathBackward[succState] = newNode[3]
+                        costBackward[succState] = [succCost + pathCost, succAction]
                     elif succState not in costBackward.keys():
-                        pathBackward[succState] = newNode[3] + [(succState, succAction)]
-                        costBackward[succState] = succCost + pathCost
+                        pathBackward[succState] = newNode[3]
+                        costBackward[succState] = [succCost + pathCost, succAction]
 
         searchDir.switchDir()
     return plan
