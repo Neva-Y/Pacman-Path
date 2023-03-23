@@ -924,13 +924,10 @@ class BidirectionalFoodSearchProblem:
 
 
 def bidirectionalFoodProblemHeuristic(state, problem):
+    """YOUR CODE HERE for Task 3"""
     return 0
 
 
 def bidirectionalFoodProblemBackwardsHeuristic(state, problem):
     """YOUR CODE HERE for Task 3"""
     return 0
-
-def getFurthestGoalDistance(state, goalStates):
-    for state in goalStates:
-        return 0
