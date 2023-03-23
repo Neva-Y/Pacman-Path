@@ -834,9 +834,11 @@ class BidirectionalFoodSearchProblem:
         self.emptyGrid = self.foodGrid.copy()
         for state in foodStates:
             self.emptyGrid[state[0]][state[1]] = False
+
         for state in foodStates:
             if state != self.init_pos:
                 foodLocationGrid = self.emptyGrid.copy()
+                foodLocationGrid[state[0]][state[1]] = True
                 self.goal_states.append((state, foodLocationGrid))
         # And if you have anything else want to initialize:
         self.costFn = costFn

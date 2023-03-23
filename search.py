@@ -289,7 +289,8 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
 
         if searchDir.dir == 'F':
             state, action, pathCost, path = openForward.pop()
-            openForwardSet.remove(state)
+            if state in openForwardSet:
+                openForwardSet.remove(state)
             closedForwardSet.add(state)
             if state in openBackwardSet and pathCost + costBackward[state][0] < U:
                 U = pathCost + costBackward[state][0]
@@ -300,7 +301,8 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                 plan = forwardActions + [costBackward[state][1]] + backwardActions
         else:
             state, action, pathCost, path = openBackward.pop()
-            openBackwardSet.remove(state)
+            if state in openBackwardSet:
+                openBackwardSet.remove(state)
             closedBackwardSet.add(state)
             if state in openForwardSet and pathCost + costForward[state][0] < U:
                 U = pathCost + costForward[state][0]
@@ -315,7 +317,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
 
         if searchDir.dir == 'F':
             for succ in problem.getSuccessors(state):
-                if succ[0] not in closedForwardSet and succ[0] not in openForwardSet:
+                if succ[0] not in closedForwardSet:
                     succState, succAction, succCost = succ
                     bValue = 2 * (pathCost + succCost) + heuristic(succState, problem) - backwardsHeuristic(succState, problem)
                     newNode = (succState, succAction, pathCost + succCost, path + [(state, action)])
@@ -330,7 +332,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
 
         else:
             for succ in problem.getBackwardsSuccessors(state):
-                if succ[0] not in closedBackwardSet and succ[0] not in openBackwardSet:
+                if succ[0] not in closedBackwardSet:
                     succState, succAction, succCost = succ
                     bValue = 2 * (pathCost + succCost) + backwardsHeuristic(succState, problem) - heuristic(succState, problem)
                     newNode = (succState, succAction, pathCost + succCost, path + [(state, action)])
