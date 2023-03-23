@@ -326,7 +326,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                     if succState in costForward.keys() and costForward[succState] > (succCost + pathCost):
                         pathForward[succState] = newNode[3] + [(succState, succAction)]
                         costForward[succState] = succCost + pathCost
-                    else:
+                    elif succState not in costForward.keys():
                         pathForward[succState] = newNode[3] + [(succState, succAction)]
                         costForward[succState] = succCost + pathCost
 
@@ -341,7 +341,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                     if succState in costBackward.keys() and costBackward[succState] > (succCost + pathCost):
                         pathBackward[succState] = newNode[3] + [(succState, succAction)]
                         costBackward[succState] = succCost + pathCost
-                    else:
+                    elif succState not in costBackward.keys():
                         pathBackward[succState] = newNode[3] + [(succState, succAction)]
                         costBackward[succState] = succCost + pathCost
 
