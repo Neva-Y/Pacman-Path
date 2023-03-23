@@ -825,7 +825,7 @@ class BidirectionalFoodSearchProblem:
         """You code here for Task 3:"""
         # Define initial state as the initial position with grid of all the food
         startState = self.foodGrid.copy()
-        startState[self.init_pos[0]][self.init_pos[1]] = False
+        # startState[self.init_pos[0]][self.init_pos[1]] = False
         self.start = (self.init_pos, startState)
 
         # Define goal state as coordinates and grid of the single food location
@@ -836,10 +836,9 @@ class BidirectionalFoodSearchProblem:
             self.emptyGrid[state[0]][state[1]] = False
 
         for state in foodStates:
-            if state != self.init_pos:
-                foodLocationGrid = self.emptyGrid.copy()
-                foodLocationGrid[state[0]][state[1]] = True
-                self.goal_states.append((state, foodLocationGrid))
+            foodLocationGrid = self.emptyGrid.copy()
+            # foodLocationGrid[state[0]][state[1]] = True
+            self.goal_states.append((state, foodLocationGrid))
         # And if you have anything else want to initialize:
         self.costFn = costFn
 
@@ -876,7 +875,7 @@ class BidirectionalFoodSearchProblem:
             if not self.walls[next_x][next_y]:
                 nextGrid = state[1].copy()
                 # Update the complete food grid to flip other traversed food on the grid to False
-                nextGrid[next_x][next_y] = False
+                nextGrid[x][y] = False
                 nextState = (next_x, next_y)
                 cost = self.costFn(nextState)
                 successors.append(((nextState, nextGrid), action, cost))
