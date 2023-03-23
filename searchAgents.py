@@ -837,6 +837,7 @@ class BidirectionalFoodSearchProblem:
         for state in foodStates:
             if state != self.init_pos:
                 foodLocationGrid = self.emptyGrid.copy()
+                foodLocationGrid[state[0]][state[1]] = True
                 self.goal_states.append((state, foodLocationGrid))
         # And if you have anything else want to initialize:
         self.costFn = costFn
@@ -898,8 +899,8 @@ class BidirectionalFoodSearchProblem:
             if not self.walls[next_x][next_y]:
                 nextGrid = state[1].copy()
                 # Update the previous coordinates in grid to True if it is a food state
-                if self.foodGrid[x][y]:
-                    nextGrid[x][y] = True
+                if self.foodGrid[next_x][next_y]:
+                    nextGrid[next_x][next_y] = True
                 nextState = (next_x, next_y)
                 cost = self.costFn(nextState)
                 rev_action = Actions.reverseDirection(action)
