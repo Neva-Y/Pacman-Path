@@ -899,7 +899,7 @@ class BidirectionalFoodSearchProblem:
             next_x, next_y = int(x + dx), int(y + dy)
             if not self.walls[next_x][next_y]:
                 nextGrid = state[1].copy()
-                # Update the single food state grid to flip other food on the grid to True
+                # Update the previous coordinates in grid to True if it is a food state
                 if self.foodGrid[x][y]:
                     nextGrid[x][y] = True
                 nextState = (next_x, next_y)

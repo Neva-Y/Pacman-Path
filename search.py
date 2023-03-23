@@ -262,7 +262,6 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     openForwardSet.add(startState)
     costForward = {}
     closedForwardSet = set()
-    closedForwardSet.add(startState)
     pathForward = {}
 
     # Goal states initialisation
@@ -273,7 +272,6 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     goalStates = problem.getGoalStates()
     for goalState in goalStates:
         openBackward.push((goalState, '', 0, []), backwardsHeuristic(goalState, problem))
-        closedBackwardSet.add(goalState)
         openBackwardSet.add(goalState)
 
     # Lower, upper bound and plan initialisation
