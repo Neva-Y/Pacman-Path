@@ -925,9 +925,21 @@ class BidirectionalFoodSearchProblem:
 
 def bidirectionalFoodProblemHeuristic(state, problem):
     """YOUR CODE HERE for Task 3"""
-    return 0
+    costs = []
+    if len(problem.goal_states) > 0:
+        for goal in problem.goal_states:
+            costs.append(util.manhattanDistance(state[0], goal[0]))
+        return min(costs)
+    else:
+        return 0
 
 
 def bidirectionalFoodProblemBackwardsHeuristic(state, problem):
     """YOUR CODE HERE for Task 3"""
-    return 0
+    costs = []
+    if len(problem.goal_states) > 0:
+        for goal in problem.goal_states:
+            costs.append(util.manhattanDistance(state[0], goal[0]))
+        return max(costs)
+    else:
+        return 0
