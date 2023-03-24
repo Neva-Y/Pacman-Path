@@ -820,25 +820,25 @@ class BidirectionalFoodSearchProblem:
         self.init_pos = startingGameState.getPacmanPosition()
         self.foodGrid = startingGameState.getFood()
         self.walls = startingGameState.getWalls()
-        self.emptyFoodGrid = Grid(self.foodGrid.width, self.foodGrid.height)
 
         """You code here for Task 3:"""
         # Define initial state as the initial position with grid of all the food
         startState = self.foodGrid.copy()
-        # startState[self.init_pos[0]][self.init_pos[1]] = False
         self.start = (self.init_pos, startState)
 
-        # Define goal state as coordinates and grid of the single food location
-        self.goal_states = []
+        # Initialise an empty grid
         foodStates = self.foodGrid.asList()
         self.emptyGrid = self.foodGrid.copy()
         for state in foodStates:
             self.emptyGrid[state[0]][state[1]] = False
 
+        # Define goal state as coordinates and grid of the single food location
+        self.goal_states = []
         for state in foodStates:
             foodLocationGrid = self.emptyGrid.copy()
             foodLocationGrid[state[0]][state[1]] = True
             self.goal_states.append((state, foodLocationGrid))
+            
         # And if you have anything else want to initialize:
         self.costFn = costFn
 
