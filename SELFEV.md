@@ -56,9 +56,11 @@ This graph is just an example of how you can include your plots in markdown.
 
 #### Learning and Challenges
 > Please include your top lessons learnt, and challenges faced.  
-- Had to flip between forward and backward searches, converging to a minimum cost path when these searches have overlapping states since the manhattan distance heuristic is always admissible 
+- Had to flip between forward and backward searches, converging to a minimum cost path when these searches have overlapping states since the manhattan distance heuristic is always admissible
+- Difficulty in keeping track of states in the priority queue since there could be duplicate states if they have not been popped yet (and there isn't an easy way to acquire the states in the heap), ended up using a dictionary to keep track of these items with a counter
+- 
 #### Ideas That Almost Worked Well
-
+- Using a set to keep track of items in the PQ, but this encounters issues with duplicate states in the heap. Performed a check to see if the item is in the set before adding to the PQ, which vastly reduces the number of node expansions. However, this method assumes that duplicate states that are already in the PQ 
 > If you tried ideas that did not make it to the final code, please include them here and explain why they didn't make it.
 
 #### New Tests Shared @ ED
