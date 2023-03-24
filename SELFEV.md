@@ -32,17 +32,15 @@ This graph is just an example of how you can include your plots in markdown.
 
 #### Learning and Challenges
 > Please include your top lessons learnt, and challenges faced.  
-
-#### Ideas That Almost Worked Well
-
 - Exiting the EHC after expanding all the child nodes, using a priority queue to expand the child with the lowest heuristic
 - Checking if any of the expanded nodes were the goal nodes instead of checking after popping the node from the queue, led to less expanded nodes compared to the expected solution
+
+#### Ideas That Almost Worked Well
 > If you tried ideas that did not make it to the final code, please include them here and explain why they didn't make it.
-
+- Tried to perform the EHC search in a single function, but using a helper Improve function aided implementation 
 #### Justification
-
-
 > Please state the reason why you have assigned yourself these marks.
+- Passed all the test cases for this search algorithm and followed the implementation shown in the lecture
 
 #### New Tests Shared @ ED
 
@@ -50,7 +48,7 @@ This graph is just an example of how you can include your plots in markdown.
 
 ## Part 2
 #### Self Evaluated Marks (3 marks):
-0
+3
 > Please replace the above 0 with the mark you think you earned for this part. Consider how many (yours/ours) tests pass, the quality of your code, what you learnt, and [mainly for the final task] the quality of the tests that you wrote.
 #### Code Performance
 ![Your result](img/scientific_paper_graph_quality.png)
@@ -58,7 +56,7 @@ This graph is just an example of how you can include your plots in markdown.
 
 #### Learning and Challenges
 > Please include your top lessons learnt, and challenges faced.  
-
+- Had to flip between forward and backward searches, converging to a minimum cost path when these searches have overlapping states since the manhattan distance heuristic is always admissible 
 #### Ideas That Almost Worked Well
 
 > If you tried ideas that did not make it to the final code, please include them here and explain why they didn't make it.
