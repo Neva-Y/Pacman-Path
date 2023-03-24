@@ -838,7 +838,7 @@ class BidirectionalFoodSearchProblem:
             foodLocationGrid = self.emptyGrid.copy()
             foodLocationGrid[state[0]][state[1]] = True
             self.goal_states.append((state, foodLocationGrid))
-            
+
         # And if you have anything else want to initialize:
         self.costFn = costFn
 
@@ -874,7 +874,7 @@ class BidirectionalFoodSearchProblem:
             next_x, next_y = int(x + dx), int(y + dy)
             if not self.walls[next_x][next_y]:
                 nextGrid = state[1].copy()
-                nextGrid[next_x][next_y] = False
+                nextGrid[x][y] = False
                 nextState = (next_x, next_y)
                 cost = self.costFn(nextState)
                 successors.append(((nextState, nextGrid), action, cost))

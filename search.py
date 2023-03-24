@@ -284,15 +284,16 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
             if openForwardStates[state] == 0:
                 del openForwardStates[state]
             closedForwardSet.add(state)
-            for goalState in goalStates:
-                if (state, goalState) in openBackwardStates.keys() and pathCost + costBackward[(state, goalState)][0] < U:
-                    U = pathCost + costBackward[(state, goalState)][0]
-                    forwardActions = [action[1] for action in (path + [(state, action)])]
-                    backwardActions = [action[1] for action in reversed(pathBackward[(state, goalState)])]
-                    del forwardActions[0]
-                    del backwardActions[-1]
-                    plan = forwardActions + [costBackward[(state, goalState)][1]] + backwardActions
-                    break
+            bestBackwardState = [openBackward.getMinimumPriority(), openBackward.pop()]
+            goalState = bestBackwardState[1][4]
+            openBackward.push(bestBackwardState[1], bestBackwardState[0])
+            if (state, goalState) in openBackwardStates.keys() and pathCost + costBackward[(state, goalState)][0] < U:
+                U = pathCost + costBackward[(state, goalState)][0]
+                forwardActions = [action[1] for action in (path + [(state, action)])]
+                backwardActions = [action[1] for action in reversed(pathBackward[(state, goalState)])]
+                del forwardActions[0]
+                del backwardActions[-1]
+                plan = forwardActions + [costBackward[(state, goalState)][1]] + backwardActions
         else:
             state, action, pathCost, path, initialGoal = openBackward.pop()
             openBackwardStates[(state, initialGoal)] = openBackwardStates[(state, initialGoal)] - 1
@@ -307,7 +308,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                 del backwardActions[-1]
                 plan = forwardActions + [costForward[state][1]] + backwardActions
 
-        if L >= U:
+        if L >= U and initialGoal:
             return plan
 
         if searchDir.dir == 'F':
