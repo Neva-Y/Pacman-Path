@@ -874,7 +874,7 @@ class BidirectionalFoodSearchProblem:
             next_x, next_y = int(x + dx), int(y + dy)
             if not self.walls[next_x][next_y]:
                 nextGrid = state[1].copy()
-                nextGrid[x][y] = False
+                nextGrid[next_x][next_y] = False
                 nextState = (next_x, next_y)
                 cost = self.costFn(nextState)
                 successors.append(((nextState, nextGrid), action, cost))
