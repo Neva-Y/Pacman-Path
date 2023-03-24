@@ -56,11 +56,12 @@ This graph is just an example of how you can include your plots in markdown.
 
 #### Learning and Challenges
 > Please include your top lessons learnt, and challenges faced.  
-- Had to flip between forward and backward searches, converging to a minimum cost path when these searches have overlapping states since the manhattan distance heuristic is always admissible
+- Had to flip between forward and backward searches, converging to a minimum cost path when these searches have overlapping states since the manhattan distance heuristic is always admissible. Performed this directional flipping by creating a SearchDir class that initialises to 'Forward' and a method that flips this direction to 'Backwards' at the end of the while loop
 - Difficulty in keeping track of states in the priority queue since there could be duplicate states if they have not been popped yet (and there isn't an easy way to acquire the states in the heap), ended up using a dictionary to keep track of these items with a counter
-- 
+- General learning the set notation and reading the paper to understand the pseudocode.
+- Implementing the best data structures for the tasks, such as dictionaries, PQs and sets for quick lookup and popping
 #### Ideas That Almost Worked Well
-- Using a set to keep track of items in the PQ, but this encounters issues with duplicate states in the heap. Performed a check to see if the item is in the set before adding to the PQ, which vastly reduces the number of node expansions. However, this method assumes that duplicate states that are already in the PQ 
+- Using a set to keep track of items in the PQ, but this encounters issues with duplicate states in the heap. Performed a check to see if the item is in the set before adding to the PQ, which vastly reduces the number of node expansions. However, this method assumes that duplicate states that are already in the PQ will never form the ideal path.
 > If you tried ideas that did not make it to the final code, please include them here and explain why they didn't make it.
 
 #### New Tests Shared @ ED
@@ -68,8 +69,8 @@ This graph is just an example of how you can include your plots in markdown.
 > Tell us about your testcases and why were they useful
 
 #### Justification
-
-
+- Passed all the test cases for the Bi-Directional A* algorithm
+- Utilised efficient data structures with sets and dictionaries to support the membership checks and acquiring minimum b-value nodes from the PQ
 > Please state the reason why you have assigned yourself these marks.
 
 ## Part 3
@@ -82,6 +83,12 @@ This graph is just an example of how you can include your plots in markdown.
 
 #### Learning and Challenges
 > Please include your top lessons learnt, and challenges faced.  
+- Took a long time to internalise the problem, since now having the coordinates matching isn't enough to form an optimal path since the agent has to eat all the food instead of a single goal coordinate
+- Encoded this information by adding the grid state in the nodes, where the forward search begins with all the food states on the grid set to true and the backwards search from the goal state setting all other goal states to False. Whenever the forward search traverses across a food state it sets it to false, while the backward search sets food states it traverses across to true. This means that when the coordinates + the grid states match up from the backwards and forwards search, the ideal path is formed for an admissible heuristic.
+- Tried to create a heuristic that used minimum/maximum manhattan distance between the state and the closest/furthest food node which had some success in reducing node expansions, however, this heuristic cannot be proven to be admissible due to the nature of having multiple food states, therefore, a admissible heuristic of 0 was used to ensure an optimal path is found every time.
+- When testing the algorithm on a maze full of food nodes, noticed that the optimal path was not identified. This was because the forward and backward grids were updating with the successor coordinates, however, making the forward search update the grid using the previous coordinates and the backward search using the current coordinates fixed this issue and ensured the minimum cost path is found. 
+- The multiple food nodes led to states in the backwards search that were identical from different starting food nodes, which were not considered as they have been added to the closedBackward Set. This was problematic since these states from different starting food nodes in the backwards should be considered (as the food node that the backward search starts from is where the path will end, and for most problems there could be only one ending food state that produces an optimal solution)
+- To overcome this "multiple unique food states in backwards search" problem, I added the initial food node coordinates into the tuple for the sets and diction
 
 #### Ideas That Almost Worked Well
 
