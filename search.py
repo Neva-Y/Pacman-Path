@@ -319,6 +319,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
 
         # Return the plan if the lower bound is greater or equal to the upper bound
         if L >= U:
+            print("Length of plan:", len(plan))
             return plan
 
         # Alternate between getting forward and backward successor
@@ -362,7 +363,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                     if (succState, initialGoal) in costBackward.keys() and costBackward[(succState, initialGoal)][0] > (succCost + pathCost):
                         pathBackward[(succState, initialGoal)] = newNode[3]
                         costBackward[(succState, initialGoal)] = [succCost + pathCost, succAction]
-                    elif succState not in costBackward.keys():
+                    elif (succState, initialGoal) not in costBackward.keys():
                         pathBackward[(succState, initialGoal)] = newNode[3]
                         costBackward[(succState, initialGoal)] = [succCost + pathCost, succAction]
         # Flip the search direction
