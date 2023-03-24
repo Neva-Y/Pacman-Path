@@ -263,6 +263,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     costBackward = {}
     pathBackward = {}
     goalStates = problem.getGoalStates()
+    # Also keep track of the initial goal state for the backwards search
     for goalState in goalStates:
         openBackward.push((goalState, '', 0, [], goalState), backwardsHeuristic(goalState, problem))
         openBackwardStates[(goalState, goalState)] = 1
@@ -278,13 +279,21 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
 
         L = (openForward.getMinimumPriority() + openBackward.getMinimumPriority()) / 2
 
+        # Alternate between forwards and backward search
         if searchDir.dir == 'F':
             state, action, pathCost, path = openForward.pop()
+
+            # Keeping track of the states in the priority queue, note that there could be additional same state in
+            # the PQ (potentially better b value) so a dictionary counter is used and adding the state into the closed set
             openForwardStates[state] = openForwardStates[state] - 1
             if openForwardStates[state] == 0:
                 del openForwardStates[state]
             closedForwardSet.add(state)
+
+            # Since there can be multiple "food" goals, check if a path has been found ending at any of these states
             for goalState in goalStates:
+
+                # Create the path if the state matches with the forward search state and the cost is better than current path
                 if (state, goalState) in openBackwardStates.keys() and pathCost + costBackward[(state, goalState)][0] < U:
                     U = pathCost + costBackward[(state, goalState)][0]
                     forwardActions = [action[1] for action in (path + [(state, action)])]
@@ -294,6 +303,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                     plan = forwardActions + [costBackward[(state, goalState)][1]] + backwardActions
                     break
         else:
+            # Same idea for the backward search
             state, action, pathCost, path, initialGoal = openBackward.pop()
             openBackwardStates[(state, initialGoal)] = openBackwardStates[(state, initialGoal)] - 1
             if openBackwardStates[(state, initialGoal)] == 0:
@@ -307,13 +317,20 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                 del backwardActions[-1]
                 plan = forwardActions + [costForward[state][1]] + backwardActions
 
+        # Return the plan if the lower bound is greater or equal to the upper bound
         if L >= U:
             return plan
 
+        # Alternate between getting forward and backward successor
         if searchDir.dir == 'F':
             for succ in problem.getSuccessors(state):
+
+                # Consider unique states, ignore states that have been popped by the priority queue as it will
+                # have a lower b-value and will not need to be considered
                 if succ[0] not in closedForwardSet:
                     succState, succAction, succCost = succ
+
+                    # Calculate b-value use this to add the successor node into the priority queue, adding dict counter
                     bValue = 2 * (pathCost + succCost) + heuristic(succState, problem) - backwardsHeuristic(succState, problem)
                     newNode = (succState, succAction, pathCost + succCost, path + [(state, action)])
                     openForward.push(newNode, bValue)
@@ -321,6 +338,8 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                         openForwardStates[succState] = openForwardStates[succState] + 1
                     else:
                         openForwardStates[succState] = 1
+
+                    # Update the best cost and path for the state
                     if succState in costForward.keys() and costForward[succState][0] > (succCost + pathCost):
                         pathForward[succState] = newNode[3]
                         costForward[succState] = [succCost + pathCost, succAction]
@@ -328,6 +347,8 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                         pathForward[succState] = newNode[3]
                         costForward[succState] = [succCost + pathCost, succAction]
         else:
+            # Similar idea to backward successor but also encoding the initial goal state information to store best
+            # path and cost for that initial goal state
             for succ in problem.getBackwardsSuccessors(state):
                 if (succ[0], initialGoal) not in closedBackwardSet:
                     succState, succAction, succCost = succ
@@ -344,7 +365,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                     elif succState not in costBackward.keys():
                         pathBackward[(succState, initialGoal)] = newNode[3]
                         costBackward[(succState, initialGoal)] = [succCost + pathCost, succAction]
-
+        # Flip the search direction
         searchDir.switchDir()
     return plan
 
