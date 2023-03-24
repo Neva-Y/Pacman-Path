@@ -313,7 +313,6 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                 plan = forwardActions + [costForward[state][1]] + backwardActions
 
         if L >= U:
-            print(len(plan))
             return plan
 
         if searchDir.dir == 'F':
