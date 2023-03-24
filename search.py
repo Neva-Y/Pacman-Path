@@ -271,7 +271,7 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
     pathBackward = {}
     goalStates = problem.getGoalStates()
     for goalState in goalStates:
-        openBackward.push((goalState, '', 0, []), backwardsHeuristic(goalState, problem))
+        openBackward.push((goalState, '', 0, [], goalState), backwardsHeuristic(goalState, problem))
         openBackwardSet.add(goalState)
 
     finalStep = []
@@ -300,10 +300,10 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
                 del backwardActions[-1]
                 plan = forwardActions + [costBackward[state][1]] + backwardActions
         else:
-            state, action, pathCost, path = openBackward.pop()
+            state, action, pathCost, path, initialGoal = openBackward.pop()
             if state in openBackwardSet:
                 openBackwardSet.remove(state)
-            closedBackwardSet.add(state)
+            closedBackwardSet.add((state, initialGoal))
             if state in openForwardSet and pathCost + costForward[state][0] < U:
                 U = pathCost + costForward[state][0]
                 backwardActions = [action[1] for action in reversed(path + [(state, action)])]
@@ -332,10 +332,10 @@ def bidirectionalAStarEnhanced(problem, heuristic=nullHeuristic, backwardsHeuris
 
         else:
             for succ in problem.getBackwardsSuccessors(state):
-                if succ[0] not in closedBackwardSet:
+                if (succ[0], initialGoal) not in closedBackwardSet:
                     succState, succAction, succCost = succ
                     bValue = 2 * (pathCost + succCost) + backwardsHeuristic(succState, problem) - heuristic(succState, problem)
-                    newNode = (succState, succAction, pathCost + succCost, path + [(state, action)])
+                    newNode = (succState, succAction, pathCost + succCost, path + [(state, action)], initialGoal)
                     openBackward.push(newNode, bValue)
                     openBackwardSet.add(succState)
                     if succState in costBackward.keys() and costBackward[succState][0] > (succCost + pathCost):
